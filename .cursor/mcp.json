@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "pob": {
+      "command": "node",
+      "args": ["vendor/pob-mcp/build/index.js"],
+      "env": {
+        "POB_DIRECTORY": "/home/matthieu.edelmann/Documents/Path of Building/Builds",
+        "POB_LUA_ENABLED": "true",
+        "POB_PATH": "/home/matthieu.edelmann/Projects/PathOfBuilding/src",
+        "POB_CMD": "luajit",
+        "POB_TIMEOUT_MS": "15000",
+        "POE_TRADE_ENABLED": "true",
+        "POE_CACHE_TTL": "300",
+        "POE_RATE_LIMIT_PER_SECOND": "4"
+      }
+    }
+  }
+}
