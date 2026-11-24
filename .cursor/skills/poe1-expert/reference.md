@@ -4,18 +4,18 @@
 
 | Field | Value |
 |-------|-------|
-| Challenge league | Curse of the Allflame |
-| Short / API name | `Allflame` |
-| Patch | 3.29.0 |
-| HC | `Hardcore Allflame` |
-| Launch | 2026-07-24 |
+| Challenge league | Covens of Umbra |
+| Short / API name | `Covens` |
+| Patch | 3.30.0 |
+| HC | `Hardcore Covens` |
+| Launch | 2026-11-13 |
 
-League mechanics and build meta: [allflame.md](allflame.md).
+League mechanics and build meta: [covens.md](covens.md).
 
 Example poe.ninja currency URL:
 
 ```
-https://poe.ninja/poe1/api/economy/stash/current/currency/overview?league=Allflame&type=Currency
+https://poe.ninja/poe1/api/economy/stash/current/currency/overview?league=Covens&type=Currency
 ```
 
 ## pob-mcp
@@ -34,7 +34,7 @@ https://poe.ninja/poe1/api/economy/stash/current/currency/overview?league=Allfla
 | `POE_TRADE_ENABLED` | `true` for trade API tools |
 | `POE_SESSION_ID` | POESESSID cookie for weighted BIS search |
 
-### Tool categories (discover live list via GetMcpTools)
+### Tool categories (discover the live list through the current client)
 
 - **XML**: `list_builds`, `analyze_build`, `compare_builds`, tree diff/path tools
 - **Lua core**: `lua_start`, `lua_load_build`, `lua_get_stats`, `lua_set_tree`, `validate_build`
@@ -49,7 +49,7 @@ https://poe.ninja/poe1/api/economy/stash/current/currency/overview?league=Allfla
 
 Official site: https://www.pathofexile.com/trade/
 
-pob-mcp uses the Trade API (`trade.pathofexile.com`). Default league: **`Allflame`**.
+pob-mcp uses the Trade API (`trade.pathofexile.com`). Default league: **`Covens`**.
 
 | Tool | Purpose |
 |------|---------|
@@ -66,7 +66,7 @@ pob-mcp uses the Trade API (`trade.pathofexile.com`). Default league: **`Allflam
 
 ### Resolved stat IDs
 
-Confirmed working against the Allflame API. Full list: `https://www.pathofexile.com/api/trade/data/stats`.
+Previously verified during Allflame (3.29); recheck with `search_stats` before use in Covens. Full list: `https://www.pathofexile.com/api/trade/data/stats`.
 Query semantics and pitfalls: [trade.md](trade.md).
 
 | Mod | Stat ID |
@@ -97,7 +97,7 @@ https://www.pathofexile.com/trade/search/{league}/{searchId}
 https://www.pathofexile.com/trade/search/{league}/{searchId}#{itemId}
 ```
 
-Manual UI entry point: https://www.pathofexile.com/trade/search/Allflame
+Manual UI entry point: https://www.pathofexile.com/trade/search/Covens
 
 Full workflows: [trade.md](trade.md).
 
@@ -144,7 +144,9 @@ https://poe.ninja/poe1/api/economy/exchange/current/overview?league={LEAGUE}&typ
 https://poe.ninja/poe1/api/economy/stash/current/item/overview?league={LEAGUE}&type={TYPE}
 ```
 
-Common `type` values: `UniqueWeapon`, `UniqueArmour`, `UniqueAccessory`, `UniqueJewel`, `UniqueFlask`, `SkillGem`, `ClusterJewel`, `Map`, `UniqueMap`, `DivinationCard`, `Essence`, `Fossil`, `Scarab`, `Oil`, `BaseType`, `HelmetEnchant`.
+Common `type` values: `UniqueWeapon`, `UniqueArmour`, `UniqueAccessory`, `UniqueJewel`, `UniqueFlask`, `SkillGem`, `ClusterJewel`, `Map`, `UniqueMap`, `DivinationCard`, `Essence`, `Fossil`, `Oil`, `BaseType`, `HelmetEnchant`.
+
+Scarabs were removed in 3.30. For Threads, inspect the current poe.ninja categories or use official trade; do not assume the old `Scarab` category or invent a replacement API type.
 
 ### Response fields
 
@@ -157,7 +159,7 @@ Older tools used `https://poe.ninja/api/data/currencyoverview?...` — prefer `/
 
 ### pob-mcp shortcut
 
-`get_currency_rates`, `find_arbitrage`, and `calculate_trading_profit` wrap poe.ninja. Pass league **`Allflame`** unless the user is on HC/Standard.
+`get_currency_rates`, `find_arbitrage`, and `calculate_trading_profit` wrap poe.ninja. Pass league **`Covens`** unless the user is on HC/Standard.
 
 ---
 

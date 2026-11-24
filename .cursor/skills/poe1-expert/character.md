@@ -30,10 +30,10 @@ https://www.pathofexile.com/api/ladders?id={LEAGUE}&limit=200&offset={N}
 ```
 
 - No authentication required.
-- `limit` caps at 200; page with `offset` up to `total` (15,000 in Allflame).
+- `limit` caps at 200; page with `offset` up to `total` (up to 15,000 ranked characters).
 - Each entry has `character.name` and `account.name`.
 
-Use `scripts/find_account.py <character-name>` in this repo to page through it.
+Use `uv run scripts/find_account.py <character-name>` in this repo to page through the `Covens` ladder. Pass an explicit league as the second argument for HC, SSF, or permanent leagues.
 
 ### 3. Read it off a trade listing
 

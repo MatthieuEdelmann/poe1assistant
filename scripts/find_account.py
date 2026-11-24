@@ -73,7 +73,7 @@ def main() -> int:
         print(__doc__, file=sys.stderr)
         return 2
     character = sys.argv[1]
-    league = sys.argv[2] if len(sys.argv) > 2 else "Allflame"
+    league = sys.argv[2] if len(sys.argv) > 2 else "Covens"
     hit = find(character, league)
     if hit is None:
         print(

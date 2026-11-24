@@ -1,15 +1,43 @@
 # POE1 Expert Agent
 
-Cursor agent skill for **Path of Exile 1** — tuned for the **Curse of the Allflame** challenge league (patch **3.29**, economy league `Allflame`).
+Shared agent instructions for **Path of Exile 1**, usable from Cursor, Claude Code and ChatGPT/Codex with repository access — tuned for the **Covens of Umbra** challenge league (patch **3.30**, economy league `Covens`).
 
 Sources:
 
-- [pob-mcp](https://github.com/ianderse/pob-mcp) — Path of Building MCP server (3.29 data)
+- [pob-mcp](https://github.com/ianderse/pob-mcp) — Path of Building MCP server (verify installed data support 3.30)
 - [pathofexile.com/trade](https://www.pathofexile.com/trade/) — official trade search (via pob-mcp)
 - [poewiki.net](https://www.poewiki.net/) — game mechanics and items
-- [poe.ninja](https://poe.ninja/poe1/) — live economy data (`league=Allflame`)
+- [poe.ninja](https://poe.ninja/poe1/) — live economy data (`league=Covens`)
 
-Invoke in chat with `/poe1-expert` or ask any PoE1 question (the skill auto-applies from context).
+In Cursor, invoke `/poe1-expert` or ask a PoE1 question. In Claude Code or ChatGPT/Codex,
+open this repository as the working project and ask your question; the entry points below
+direct the assistant to the same skill.
+
+## Shared rules across clients
+
+The only source of PoE rules is [`.cursor/skills/poe1-expert/SKILL.md`](.cursor/skills/poe1-expert/SKILL.md)
+and its linked references. The directory name preserves existing Cursor discovery; the instructions
+use the tools available in the current client.
+
+- Cursor discovers the existing skill directly.
+- ChatGPT/Codex enters through [AGENTS.md](AGENTS.md), which instructs it to read the skill.
+- Claude Code imports that same entry point through [CLAUDE.md](CLAUDE.md) (`@AGENTS.md`).
+
+Edit the canonical skill and references to change behavior. Keep the entry points as redirects,
+without copies of the rules. These follow the documented [AGENTS.md convention](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
+and [Claude imports](https://code.claude.com/docs/en/memory#import-additional-files).
+
+For a chat without repository access, provide the canonical skill and the references needed for
+the question as files/context; a local path alone does not make their contents available.
+Instruction loading does not configure MCP: the `pob` server must be connected separately in
+each client. [`.cursor/mcp.json`](.cursor/mcp.json) contains the existing server command and
+environment settings to use when configuring another client; it is not automatically loaded by
+Claude Code or ChatGPT/Codex. Use absolute paths when the client starts the server outside this
+repository. Without the server, the assistant must not claim to have run PoB calculations.
+
+The examples below and `builds/labcummer.*` are historical **Allflame (3.29)** snapshots. Their
+prices, listings and DPS are not current Covens results; rerun trade queries and PoB calculations
+with 3.30-compatible data before using them for upgrades.
 
 ## Usage example 1: "what is my next 50 div upgrade?"
 
@@ -181,14 +209,56 @@ Trade is **enabled** in the default config. For build-weighted BIS (`find_weight
 
 Open this folder in Cursor. The project-level `.cursor/mcp.json` registers the `pob` server. Restart Cursor or reload MCP if tools do not appear.
 
-Verify: ask the agent to `get_leagues` or `get_item_price` for a unique in `Allflame`.
+Verify: ask the agent to `get_leagues` or `get_item_price` for a unique in `Covens`. The official API name is `Covens`, not `Covens of Umbra`.
 
 ## Skill location
 
 - [`.cursor/skills/poe1-expert/SKILL.md`](.cursor/skills/poe1-expert/SKILL.md) — agent instructions
-- [`.cursor/skills/poe1-expert/allflame.md`](.cursor/skills/poe1-expert/allflame.md) — 3.29 / Allflame league reference
+- [`.cursor/skills/poe1-expert/covens.md`](.cursor/skills/poe1-expert/covens.md) — current 3.30 / Covens league reference and official sources
+- [`.cursor/skills/poe1-expert/allflame.md`](.cursor/skills/poe1-expert/allflame.md) — historical 3.29 / Allflame reference
 - [`.cursor/skills/poe1-expert/trade.md`](.cursor/skills/poe1-expert/trade.md) — official trade workflows
 - [`.cursor/skills/poe1-expert/character.md`](.cursor/skills/poe1-expert/character.md) — resolving an account name and pulling a character's gear/tree
+- [`.cursor/skills/poe1-expert/pricing.md`](.cursor/skills/poe1-expert/pricing.md) — shared valuation method and routing to specialized category sheets
+- [`.cursor/skills/poe1-expert/optimization.md`](.cursor/skills/poe1-expert/optimization.md) — character optimization using compatible poe.ninja builds and local PoB comparisons
+
+## Comparing your character with other builds
+
+Ask to optimize your character and compare it with poe.ninja builds. The assistant matches
+the exact main skill and delivery mode, the league and the build-enabling uniques. Optional
+uniques do not restrict the search; a required unique must match its relevant functional variant.
+
+It inspects comparable character profiles, identifies transferable differences in gems, passives,
+gear and defenses, and tests candidate changes in your own PoB. Recommendations include source
+links, applicability and measured gains when available. Different archetypes and aspirational
+gear are labelled separately; leaderboard DPS is not presented as your expected improvement.
+
+## Pricing an item
+
+Paste the item's in-game copied text and ask for an estimate or a listing price. The shared skill
+loads the relevant English sheet: rares, uniques, gems, crafting bases, cluster jewels, bulk items,
+maps/league items or mercenary warrants. All clients use the same files.
+
+The workflow checks matching variants, useful modifier combinations and real comparable listings.
+It distinguishes asking prices from completed sales, and explains uncertainty when the market is
+thin. The category methods were adapted from the supplied `/price` notes; historical prices and
+absolute market claims were not imported as current facts.
+
+For a direct trade query when the MCP tool is unavailable:
+
+```bash
+uv run scripts/trade_search.py '{"query":{"name":"Tabula Rasa","status":{"option":"securable"}},"sort":{"price":"asc"}}' Covens --save /tmp/poe-tabula.json
+```
+
+Use a new output filename per search. The saved JSON contains the timestamp, league, query and
+raw listings, including modifier details and mercenary support attachments. The helper preserves
+the requested status and sort order and coordinates its own request spacing through a local
+SQLite cache. See [trade.md](.cursor/skills/poe1-expert/trade.md) for cooldown behavior and limits.
+
+Offline validation, without contacting the trade API:
+
+```bash
+uv run tests/check_trade_search.py
+```
 
 ## Looking up your own character
 
@@ -197,8 +267,24 @@ The agent needs your **account name** (`Name#1234`), not your character name. Gi
 If your character is ranked in the league, it can also resolve the account itself:
 
 ```bash
-python3 scripts/find_account.py <character-name> [league]
+uv run scripts/find_account.py <character-name> [league]
 ```
+
+Both `find_account.py` and `trade_search.py` default to `Covens`; an explicit league argument
+overrides that default.
+
+## Updating an existing installation
+
+Update clean dependency checkouts before calculating 3.30 builds:
+
+```bash
+git -C ~/Projects/PathOfBuilding pull --ff-only
+git -C vendor/pob-mcp pull --ff-only
+./scripts/setup-pob-mcp.sh
+```
+
+Use your actual `POB_PATH` checkout if different. Confirm the installed PoB release/data support
+3.30 and reload the MCP server. Changing the league used for prices does not update PoB data.
 
 ## Smoke test (optional)
 

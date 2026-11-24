@@ -1,6 +1,8 @@
 # Curse of the Allflame (3.29)
 
-Current challenge league. Launched **24 July 2026** with patch **3.29.0**.
+Historical reference for the previous league. The current default is [Covens of Umbra (3.30)](covens.md).
+
+Launched **24 July 2026** with patch **3.29.0**.
 
 Official overview: https://www.pathofexile.com/allflame  
 Patch notes: https://www.pathofexile.com/forum/view-thread/3985332
@@ -14,7 +16,7 @@ Patch notes: https://www.pathofexile.com/forum/view-thread/3985332
 | Hardcore | `Hardcore Allflame` |
 | Player-facing shorthand | Curse of the Allflame, Allflame |
 
-Default to **`Allflame`** for prices, trade, and economy unless the user specifies HC/SSF.
+Use this reference only for historical Allflame questions; these are not the current defaults.
 
 ## Core league loop
 
@@ -27,7 +29,7 @@ Default to **`Allflame`** for prices, trade, and economy unless the user specifi
 
 ## Build-relevant 3.29 changes
 
-Assume PoB and pob-mcp are on **3.29** data. When advising builds, weight these meta shifts:
+The following notes describe **3.29** data, not the current build meta:
 
 ### Ascendancy / class
 
@@ -65,7 +67,7 @@ Assume PoB and pob-mcp are on **3.29** data. When advising builds, weight these 
 
 ## PoB / pob-mcp
 
-- pob-mcp targets **3.29** — use `get_leagues` for trade, never hard-code an old league.
+- Historical calculations used **3.29** data; verify the installed PoB version for new calculations.
 - For boss DPS in this league, confirm pinnacle targets (new endgame content in 3.29) via poewiki or patch notes before setting `set_enemy_stats`.
 
 ## Wiki pages (when poewiki is reachable)
