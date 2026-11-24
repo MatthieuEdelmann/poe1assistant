@@ -1,45 +1,222 @@
-# POE1 Expert Agent
+# POE1 Assistant
 
-Shared agent instructions for **Path of Exile 1**, usable from Cursor, Claude Code and ChatGPT/Codex with repository access — tuned for the **Covens of Umbra** challenge league (patch **3.30**, economy league `Covens`).
+A shared Path of Exile 1 assistant for **character optimization, build comparisons, item pricing
+and trade**, usable from Cursor, Claude Code and ChatGPT/Codex with repository access.
 
-Sources:
+Current defaults: **Covens of Umbra · patch 3.30 · API league `Covens`**.
+See the [league reference](.cursor/skills/poe1-expert/covens.md) for sources and the last verification date.
 
-- [pob-mcp](https://github.com/ianderse/pob-mcp) — Path of Building MCP server (verify installed data support 3.30)
-- [pathofexile.com/trade](https://www.pathofexile.com/trade/) — official trade search (via pob-mcp)
-- [poewiki.net](https://www.poewiki.net/) — game mechanics and items
-- [poe.ninja](https://poe.ninja/poe1/) — live economy data (`league=Covens`)
+The repository contains agent instructions and command-line helpers. Live calculations require
+[Path of Building](https://github.com/PathOfBuildingCommunity/PathOfBuilding) and
+[pob-mcp](https://github.com/ianderse/pob-mcp); live comparisons and prices use
+[poe.ninja](https://poe.ninja/poe1/), the [official trade site](https://www.pathofexile.com/trade/)
+and [PoE Wiki](https://www.poewiki.net/).
 
-In Cursor, invoke `/poe1-expert` or ask a PoE1 question. In Claude Code or ChatGPT/Codex,
-open this repository as the working project and ask your question; the entry points below
-direct the assistant to the same skill.
+## What you can ask
 
-## Shared rules across clients
+| Task | Example prompt |
+|------|----------------|
+| Optimize a character | “Audit my build and find the next upgrades within 50 divine. Measure the damage and defense changes in my PoB.” |
+| Compare similar builds | “Compare my character with poe.ninja builds using the same main skill and mandatory uniques. Explain which changes transfer to my build.” |
+| Price a copied item | “Estimate this item's listing price from current comparables.” Then paste its in-game copied text. |
+| Check a mercenary warrant | “Compare this warrant with matching skills and support placements, not just the same mercenary type.” |
+| Find gear | “Find upgrades that keep my resistances capped, with direct trade links.” |
+| Inspect an account | “Load character `<character>` from account `Name#1234`.” |
 
-The only source of PoE rules is [`.cursor/skills/poe1-expert/SKILL.md`](.cursor/skills/poe1-expert/SKILL.md)
-and its linked references. The directory name preserves existing Cursor discovery; the instructions
-use the tools available in the current client.
+Provide your current PoB file or export for calculations. For account lookups, the account name
+including its discriminator is needed; a character name alone may only be resolvable through the ladder.
 
-- Cursor discovers the existing skill directly.
-- ChatGPT/Codex enters through [AGENTS.md](AGENTS.md), which instructs it to read the skill.
-- Claude Code imports that same entry point through [CLAUDE.md](CLAUDE.md) (`@AGENTS.md`).
+## Character optimization and build comparisons
 
-Edit the canonical skill and references to change behavior. Keep the entry points as redirects,
-without copies of the rules. These follow the documented [AGENTS.md convention](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
-and [Claude imports](https://code.claude.com/docs/en/memory#import-additional-files).
+The assistant audits your current build, then finds compatible characters on
+[poe.ninja Builds](https://poe.ninja/poe1/builds). Direct peers match the exact main skill and
+its delivery mode, the league/mode, and all uniques required for the build's mechanics.
+Optional uniques do not unnecessarily narrow the search. Functional item variants and
+missing dependencies are checked before another character's setup is considered transferable.
 
-For a chat without repository access, provide the canonical skill and the references needed for
-the question as files/context; a local path alone does not make their contents available.
-Instruction loading does not configure MCP: the `pob` server must be connected separately in
-each client. [`.cursor/mcp.json`](.cursor/mcp.json) contains the existing server command and
-environment settings to use when configuring another client; it is not automatically loaded by
-Claude Code or ChatGPT/Codex. Use absolute paths when the client starts the server outside this
-repository. Without the server, the assistant must not claim to have run PoB calculations.
+The comparison covers gems, passive paths, masteries, jewels, gear and defenses. It separates
+attainable changes from alternative archetypes or aspirational equipment, then tests promising
+changes in your own PoB. Results include source profiles, applicability, measured gains and
+trade-offs when calculations are available. Leaderboard DPS is not your expected improvement.
 
-The examples below and `builds/labcummer.*` are historical **Allflame (3.29)** snapshots. Their
-prices, listings and DPS are not current Covens results; rerun trade queries and PoB calculations
-with 3.30-compatible data before using them for upgrades.
+Full workflow: [Character optimization](.cursor/skills/poe1-expert/optimization.md).
 
-## Usage example 1: "what is my next 50 div upgrade?"
+## Item pricing
+
+Paste an item copied in-game. The assistant selects the relevant category guide, compares exact
+variants and useful modifier combinations, and inspects current listings. It reports asking-price
+ranges and uncertainty rather than treating an expensive listing as a completed sale.
+
+| Category | Guide |
+|----------|-------|
+| Rare/magic equipment, ordinary and abyss jewels, flasks | [Rares](.cursor/skills/poe1-expert/pricing/rares.md) |
+| Unique equipment and unique jewels | [Uniques](.cursor/skills/poe1-expert/pricing/uniques.md) |
+| Active, support, Vaal and transfigured gems | [Gems](.cursor/skills/poe1-expert/pricing/gems.md) |
+| Normal, influenced, fractured and synthesised bases | [Crafting bases](.cursor/skills/poe1-expert/pricing/bases.md) |
+| Cluster bases and finished clusters | [Cluster jewels](.cursor/skills/poe1-expert/pricing/clusters.md) |
+| Currency, fragments and stackable consumables | [Bulk items](.cursor/skills/poe1-expert/pricing/bulk.md) |
+| Maps, invitations, logbooks and other league items | [Maps and league items](.cursor/skills/poe1-expert/pricing/maps.md) |
+| Mercenary Warrants and skill/support combinations | [Mercenaries](.cursor/skills/poe1-expert/pricing/mercenaries.md) |
+
+The [shared pricing workflow](.cursor/skills/poe1-expert/pricing.md) contains the common method.
+Category guides contain only their specialized considerations. Methods were adapted from the
+supplied `/price` notes; historical prices were not imported as current market facts.
+
+## One source of instructions
+
+All PoE rules live in [the canonical skill](.cursor/skills/poe1-expert/SKILL.md) and its linked
+references. The `.cursor` directory is retained for existing skill discovery; the content is shared.
+
+| Client | Entry point |
+|--------|-------------|
+| Cursor | `.cursor/skills/poe1-expert/SKILL.md`; invoke `/poe1-expert` or ask a PoE1 question |
+| Claude Code | [CLAUDE.md](CLAUDE.md) imports `AGENTS.md` |
+| ChatGPT/Codex with repository access | [AGENTS.md](AGENTS.md) directs the assistant to the canonical skill |
+
+Open this repository as the working project. Edit the canonical files to change behavior;
+keep the entry points as redirects without copied rules. See the official documentation for
+[AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and
+[Claude imports](https://code.claude.com/docs/en/memory#import-additional-files).
+
+For chats without repository access, provide the skill and the relevant reference files as
+context. A local path alone does not expose its contents, and loading instructions does not
+connect the PoB server.
+
+## Setup
+
+### 1. Prepare the environment
+
+Install Git, Node.js with npm, [uv](https://docs.astral.sh/uv/) for the Python helpers, and LuaJIT
+for live PoB calculations. For example:
+
+```bash
+sudo apt-get install luajit   # Debian/Ubuntu
+# macOS: brew install luajit
+
+git clone https://github.com/MatthieuEdelmann/poe1assistant.git
+cd poe1assistant
+```
+
+### 2. Install Path of Building and pob-mcp
+
+```bash
+mkdir -p ~/Projects
+git clone https://github.com/PathOfBuildingCommunity/PathOfBuilding.git ~/Projects/PathOfBuilding
+./scripts/setup-pob-mcp.sh
+```
+
+The setup script clones pob-mcp into `vendor/pob-mcp`, installs its npm dependencies and builds it.
+Verify that the installed PoB and pob-mcp data support the current patch before calculating builds.
+
+### 3. Configure the server for your client
+
+[`.cursor/mcp.json`](.cursor/mcp.json) contains the existing `pob` server definition. Its paths
+are machine-specific: replace them with your own before use.
+
+| Setting | Value to configure |
+|---------|--------------------|
+| Server command | `node` |
+| Server argument | Absolute path to `vendor/pob-mcp/build/index.js` when the working directory is not this repository |
+| `POB_DIRECTORY` | Absolute path to your XML builds folder; use this repository's `builds/` folder if desired |
+| `POB_PATH` | Absolute path to `PathOfBuilding/src`, containing `HeadlessWrapper.lua` |
+| `POB_CMD` | `luajit`, or its absolute path if unavailable on the client's `PATH` |
+| `POB_LUA_ENABLED` | `true` for live calculations |
+| `POE_TRADE_ENABLED` | `true` for trade tools |
+| `POE_SESSION_ID` | Optional session cookie for weighted trade searches; keep it out of version control |
+
+Cursor uses the project MCP configuration. Claude Code and ChatGPT/Codex need the same server
+command and environment registered through their own MCP configuration; they do not automatically
+load `.cursor/mcp.json`. Reload the MCP connection after changing configuration.
+
+For weighted BIS searches, supply your `POESESSID` cookie from a logged-in official trade session
+through a private client setting or environment. Without it, use ordinary searches and item-upgrade
+suggestions. Without a working PoB bridge, the assistant can inspect build data but must identify
+calculations it could not perform.
+
+### 4. Verify the connection
+
+Ask the assistant to discover the `pob` tools and call `get_leagues`. Confirm `Covens`, then load
+an XML build from `POB_DIRECTORY` and request its stats. League discovery checks market access;
+it does not establish that the installed PoB data supports 3.30.
+
+## Command-line helpers
+
+Run commands from the repository root.
+
+### Resolve a ranked character's account
+
+```bash
+uv run scripts/find_account.py YourCharacter
+uv run scripts/find_account.py YourCharacter 'Hardcore Covens'
+```
+
+The default is `Covens`. An explicit league overrides it. If the character is not found on the
+ladder, provide the account name directly. Details: [Character lookup](.cursor/skills/poe1-expert/character.md).
+
+### Query trade and save evidence
+
+```bash
+uv run scripts/trade_search.py '{"query":{"name":"Tabula Rasa","status":{"option":"securable"}},"sort":{"price":"asc"}}' Covens --save /tmp/poe-tabula.json
+uv run scripts/trade_search.py - 'Hardcore Covens' < query.json
+```
+
+The helper preserves the requested status and sort, fetches up to ten listings, and displays
+special modifiers and mercenary supports under their parent skills. `--save` writes a new JSON
+file containing the league, timestamp, query, search URL, total and raw fetched listings.
+Use a different filename for each comparison step; existing evidence is never overwritten.
+
+Request spacing is shared between helper invocations through a local SQLite cache. Quota headers
+and HTTP 429 responses can defer calls; retries and automatic waiting are bounded. Other MCP
+clients do not share this helper's local quota state. Details: [Trade guide](.cursor/skills/poe1-expert/trade.md).
+
+## Validation and updates
+
+Offline checks:
+
+```bash
+uv run tests/check_trade_search.py
+uv run scripts/find_account.py --self-check
+```
+
+Optional PoB integration smoke test after dependency setup:
+
+```bash
+(cd vendor/pob-mcp && POB_PATH=~/Projects/PathOfBuilding/src npm run test:smoke)
+```
+
+To update clean dependency checkouts:
+
+```bash
+git -C ~/Projects/PathOfBuilding pull --ff-only
+git -C vendor/pob-mcp pull --ff-only
+./scripts/setup-pob-mcp.sh
+```
+
+Substitute the actual PoB checkout if different, then reload the MCP connection. The setup script
+rebuilds an existing pob-mcp checkout but does not pull its updates. Changing a market league does
+not update PoB's tree, gems or item data.
+
+## Reference index
+
+- [Shared skill](.cursor/skills/poe1-expert/SKILL.md)
+- [Covens of Umbra / 3.30](.cursor/skills/poe1-expert/covens.md)
+- [Character optimization and peer comparisons](.cursor/skills/poe1-expert/optimization.md)
+- [Character lookup and import](.cursor/skills/poe1-expert/character.md)
+- [Pricing workflow and category routing](.cursor/skills/poe1-expert/pricing.md)
+- [Trade tools and query mechanics](.cursor/skills/poe1-expert/trade.md)
+- [Source and API reference](.cursor/skills/poe1-expert/reference.md)
+- [Historical Allflame / 3.29 reference](.cursor/skills/poe1-expert/allflame.md)
+
+## Historical examples: Allflame 3.29
+
+The records below and [`builds/labcummer.*`](builds) belong to the previous league. They illustrate
+past sessions, not current prices, available listings or 3.30 DPS. The original results are retained
+for context; rerun the queries and calculations before applying any recommendation today.
+
+<details>
+<summary>Show the two historical worked examples</summary>
+
+### Example 1: "what is my next 50 div upgrade?"
 
 A real session against the `labcummer` build in [`builds/`](builds) — a level 92 Deadeye running
 Lightning Arrow with Trinity.
@@ -50,7 +227,7 @@ The agent loads the build into a headless Path of Building, measures boss DPS, t
 at a time against live trade listings. Nothing is estimated from memory — every number below came out
 of the PoB engine.
 
-### The answer
+#### The answer
 
 Baseline was **1,078,463** boss DPS. The recommended buys reach **1,685,311**, a **+56% gain for
 about 10 divine**:
@@ -66,7 +243,7 @@ The headline finding is that the biggest single lever was **not an item**. One u
 gem was worth **+16.2%** on its own, and a trade search returned zero listings for it league-wide —
 so the correct advice was "level it yourself", not "buy something".
 
-### Why the quiver, and which one
+#### Why the quiver, and which one
 
 Six quivers benchmarked in PoB on the gem-fixed build:
 
@@ -84,7 +261,7 @@ than the 10 div Woe Nails — Woe Nails carries flat fire damage, which balances
 better than raw crit does. That is the kind of result you only get by calculating rather than
 eyeballing mods.
 
-### What it refused to buy
+#### What it refused to buy
 
 Roughly 40 divine was left deliberately unspent:
 
@@ -100,7 +277,7 @@ The blocker was resistances, not currency: the equipped two-stone ring was holdi
 resistance profile together, so every damage ring on the market cost a fifth of the character's
 effective HP. Fixing resistances first unlocks those slots.
 
-## Usage example 2: "which unique body armours are worth 6-linking?"
+### Example 2: "which unique body armours are worth 6-linking?"
 
 An economy question rather than a build question — no character involved.
 
@@ -110,7 +287,7 @@ The agent pulled every unique body armour poe.ninja tracks in Allflame, paired e
 unlinked line with its 6-link line, and ranked by the gap. It then swept all 92 socketable unique
 chests against the live trade API as a cross-check.
 
-### The finding: there is barely a list
+#### The finding: there is barely a list
 
 The 6-link premium is close to a **constant**, not a property of the armour. Unlinked unique chests
 have a median value of **2 chaos** and range from 1c to 862c, but their 6-linked versions collapse
@@ -140,7 +317,7 @@ The ceiling on the whole market is **`Tabula Rasa` at 5 chaos** across 899 listi
 6-link with six white sockets for 5c is what every other unique's link premium competes against.
 `Skin of the Loyal` (690c) is the only inherently-6L chest that holds real value.
 
-### Why poe.ninja and not live listings
+#### Why poe.ninja and not live listings
 
 The live 6-link market is too sparse to rank: of 92 socketable uniques swept on the trade API,
 **82 had no online 6-link listing at all**, and most of the rest had one or two. `Carcass Jack` makes
@@ -152,143 +329,4 @@ The same caution applies inside the poe.ninja data. The largest raw delta in the
 under five listings a side is an anecdote, so the agent reports those separately instead of ranking
 them.
 
-## One-time setup
-
-### 1. Install system deps
-
-```bash
-# LuaJIT (required for live PoB calculations)
-sudo apt-get install luajit   # Debian/Ubuntu
-# or: brew install luajit     # macOS
-```
-
-### 2. Clone Path of Building
-
-```bash
-git clone https://github.com/PathOfBuildingCommunity/PathOfBuilding.git ~/Projects/PathOfBuilding
-```
-
-### 3. Install pob-mcp
-
-```bash
-./scripts/setup-pob-mcp.sh
-```
-
-Or manually:
-
-```bash
-git clone https://github.com/ianderse/pob-mcp.git vendor/pob-mcp
-cd vendor/pob-mcp && npm install && npm run build
-```
-
-### 4. Configure paths
-
-Edit [`.cursor/mcp.json`](.cursor/mcp.json):
-
-| Variable | Set to |
-|----------|--------|
-| `POB_DIRECTORY` | Your PoB `Builds` folder |
-| `POB_PATH` | `PathOfBuilding/src` (must contain `HeadlessWrapper.lua`) |
-| `POB_CMD` | Full path to `luajit` if not on `PATH` |
-| `POE_TRADE_ENABLED` | `true` (enabled by default) — official trade API |
-| `POE_SESSION_ID` | Your `POESESSID` cookie for weighted BIS search (optional) |
-
-Trade is **enabled** in the default config. For build-weighted BIS (`find_weighted_trade_items`):
-
-1. Log in at https://www.pathofexile.com/trade/
-2. Copy the `POESESSID` cookie from browser devtools
-3. Add to `.cursor/mcp.json`:
-
-```json
-"POE_SESSION_ID": "<your POESESSID>"
-```
-
-4. Reload MCP. Do not commit this value.
-
-### 5. Enable MCP in Cursor
-
-Open this folder in Cursor. The project-level `.cursor/mcp.json` registers the `pob` server. Restart Cursor or reload MCP if tools do not appear.
-
-Verify: ask the agent to `get_leagues` or `get_item_price` for a unique in `Covens`. The official API name is `Covens`, not `Covens of Umbra`.
-
-## Skill location
-
-- [`.cursor/skills/poe1-expert/SKILL.md`](.cursor/skills/poe1-expert/SKILL.md) — agent instructions
-- [`.cursor/skills/poe1-expert/covens.md`](.cursor/skills/poe1-expert/covens.md) — current 3.30 / Covens league reference and official sources
-- [`.cursor/skills/poe1-expert/allflame.md`](.cursor/skills/poe1-expert/allflame.md) — historical 3.29 / Allflame reference
-- [`.cursor/skills/poe1-expert/trade.md`](.cursor/skills/poe1-expert/trade.md) — official trade workflows
-- [`.cursor/skills/poe1-expert/character.md`](.cursor/skills/poe1-expert/character.md) — resolving an account name and pulling a character's gear/tree
-- [`.cursor/skills/poe1-expert/pricing.md`](.cursor/skills/poe1-expert/pricing.md) — shared valuation method and routing to specialized category sheets
-- [`.cursor/skills/poe1-expert/optimization.md`](.cursor/skills/poe1-expert/optimization.md) — character optimization using compatible poe.ninja builds and local PoB comparisons
-
-## Comparing your character with other builds
-
-Ask to optimize your character and compare it with poe.ninja builds. The assistant matches
-the exact main skill and delivery mode, the league and the build-enabling uniques. Optional
-uniques do not restrict the search; a required unique must match its relevant functional variant.
-
-It inspects comparable character profiles, identifies transferable differences in gems, passives,
-gear and defenses, and tests candidate changes in your own PoB. Recommendations include source
-links, applicability and measured gains when available. Different archetypes and aspirational
-gear are labelled separately; leaderboard DPS is not presented as your expected improvement.
-
-## Pricing an item
-
-Paste the item's in-game copied text and ask for an estimate or a listing price. The shared skill
-loads the relevant English sheet: rares, uniques, gems, crafting bases, cluster jewels, bulk items,
-maps/league items or mercenary warrants. All clients use the same files.
-
-The workflow checks matching variants, useful modifier combinations and real comparable listings.
-It distinguishes asking prices from completed sales, and explains uncertainty when the market is
-thin. The category methods were adapted from the supplied `/price` notes; historical prices and
-absolute market claims were not imported as current facts.
-
-For a direct trade query when the MCP tool is unavailable:
-
-```bash
-uv run scripts/trade_search.py '{"query":{"name":"Tabula Rasa","status":{"option":"securable"}},"sort":{"price":"asc"}}' Covens --save /tmp/poe-tabula.json
-```
-
-Use a new output filename per search. The saved JSON contains the timestamp, league, query and
-raw listings, including modifier details and mercenary support attachments. The helper preserves
-the requested status and sort order and coordinates its own request spacing through a local
-SQLite cache. See [trade.md](.cursor/skills/poe1-expert/trade.md) for cooldown behavior and limits.
-
-Offline validation, without contacting the trade API:
-
-```bash
-uv run tests/check_trade_search.py
-```
-
-## Looking up your own character
-
-The agent needs your **account name** (`Name#1234`), not your character name. Give it once and it will reuse it.
-
-If your character is ranked in the league, it can also resolve the account itself:
-
-```bash
-uv run scripts/find_account.py <character-name> [league]
-```
-
-Both `find_account.py` and `trade_search.py` default to `Covens`; an explicit league argument
-overrides that default.
-
-## Updating an existing installation
-
-Update clean dependency checkouts before calculating 3.30 builds:
-
-```bash
-git -C ~/Projects/PathOfBuilding pull --ff-only
-git -C vendor/pob-mcp pull --ff-only
-./scripts/setup-pob-mcp.sh
-```
-
-Use your actual `POB_PATH` checkout if different. Confirm the installed PoB release/data support
-3.30 and reload the MCP server. Changing the league used for prices does not update PoB data.
-
-## Smoke test (optional)
-
-```bash
-cd vendor/pob-mcp
-POB_PATH=~/Projects/PathOfBuilding/src npm run test:smoke
-```
+</details>
